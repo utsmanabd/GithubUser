@@ -13,6 +13,8 @@ class UserFavoriteViewModel(private val usersRepository: UsersRepository) : View
     private val _listUser = MutableLiveData<String>()
     val listUser: LiveData<String> = _listUser
 
+    val isFavorite : MutableLiveData<Boolean> = usersRepository.isFavorite
+
     init {
         setUsernameLiveData()
     }
@@ -39,4 +41,6 @@ class UserFavoriteViewModel(private val usersRepository: UsersRepository) : View
         viewModelScope.launch { usersRepository.setFavUser(users, false) }
     }
 
+    fun isUserFavorite(username: String) =
+        usersRepository.isUserFavorite(username)
 }

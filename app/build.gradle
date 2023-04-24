@@ -15,7 +15,7 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
-        buildConfigField("String", "API_KEY", '"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"')
+        buildConfigField("String", "API_KEY", '"YOUR API KEY"')
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

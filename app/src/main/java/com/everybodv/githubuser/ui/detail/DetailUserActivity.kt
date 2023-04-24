@@ -53,6 +53,7 @@ class DetailUserActivity : AppCompatActivity() {
             isDarkMode = isDark
         }
 
+        @Suppress("DEPRECATION")
         val receiveUsersEntity = intent.getParcelableExtra<UsersEntity>(EXTRA_USER) as UsersEntity
 
         val sectionPagerAdapter = SectionPagerAdapter(this)
@@ -66,23 +67,25 @@ class DetailUserActivity : AppCompatActivity() {
 
         val fbFavorite = binding.fbFavorite
 
-        val favorite = receiveUsersEntity.isFavorite
-        if (!favorite) {
-            fbFavorite.setImageResource(R.drawable.baseline_favorite_border_24)
-        } else fbFavorite.setImageResource(R.drawable.baseline_favorite_24)
-
-        fbFavorite.setOnClickListener {
-            val (login, avatarUrl, isFavorite) = receiveUsersEntity
-            if (!isFavorite) {
-                fbFavorite.setImageResource(R.drawable.baseline_favorite_24)
-                viewModel.saveUsers(UsersEntity(login, avatarUrl, isFavorite))
-                fbFavorite.isEnabled = false
-                Toast.makeText(this@DetailUserActivity, login + getString(R.string.success_add), Toast.LENGTH_SHORT).show()
-            } else {
+        viewModel.isUserFavorite(receiveUsersEntity.login)
+        viewModel.isFavorite.observe(this){ isFavorite ->
+            val (login, avatarUrl, isFav) = receiveUsersEntity
+            if (isFavorite == false) {
                 fbFavorite.setImageResource(R.drawable.baseline_favorite_border_24)
-                viewModel.deleteUsers(UsersEntity(login, avatarUrl, isFavorite))
-                fbFavorite.isEnabled = false
-                Toast.makeText(this@DetailUserActivity, login + getString(R.string.success_remove), Toast.LENGTH_SHORT).show()
+                fbFavorite.setOnClickListener{
+                    fbFavorite.setImageResource(R.drawable.baseline_favorite_24)
+                    viewModel.saveUsers(UsersEntity(login, avatarUrl, isFav))
+                    viewModel.isFavorite.postValue(true)
+                    Toast.makeText(this@DetailUserActivity, login + getString(R.string.success_add), Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                fbFavorite.setImageResource(R.drawable.baseline_favorite_24)
+                fbFavorite.setOnClickListener {
+                    fbFavorite.setImageResource(R.drawable.baseline_favorite_border_24)
+                    viewModel.deleteUsers(UsersEntity(login, avatarUrl, isFav))
+                    viewModel.isFavorite.postValue(false)
+                    Toast.makeText(this@DetailUserActivity, login + getString(R.string.success_remove), Toast.LENGTH_SHORT).show()
+                }
             }
         }
 

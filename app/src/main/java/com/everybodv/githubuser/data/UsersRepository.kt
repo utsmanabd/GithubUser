@@ -3,6 +3,7 @@ package com.everybodv.githubuser.data
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import com.everybodv.githubuser.data.local.entity.UsersEntity
 import com.everybodv.githubuser.data.local.room.UsersDao
 import com.everybodv.githubuser.data.remote.response.GithubDetailResponse
@@ -25,6 +26,17 @@ class UsersRepository private constructor(
     private val detail = MediatorLiveData<Result<GithubDetailResponse>>()
     private val following = MediatorLiveData<Result<List<UsersEntity>>>()
     private val followers = MediatorLiveData<Result<List<UsersEntity>>>()
+
+    private val _isFavorite = MediatorLiveData<Boolean>()
+    val isFavorite : MutableLiveData<Boolean> =_isFavorite
+
+    fun isUserFavorite(username: String) : LiveData<Boolean> {
+        appExecutors.diskIO.execute {
+            val isFav = usersDao.isUserFavorite(username)
+            _isFavorite.postValue(isFav)
+        }
+        return _isFavorite
+    }
 
     fun findUser(query: String) : LiveData<Result<List<UsersEntity>>> {
         users.value = Result.Loading
